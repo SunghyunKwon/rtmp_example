@@ -203,9 +203,16 @@ FINISH_OFF:
 
 int main(int argc, char **args) {
     int ret = 0;
-    char *filename = NULL;
 
-    ret = RTMPServerCreate(filename);
+    if (argc == 1) {
+        RTMP_LogPrintf("usage : rtmp_server [filename]\n");
+        goto FINISH_OFF;
+    }
+
+    ret = RTMPServerCreate(args[1]);
+
+FINISH_OFF:
+
     return ret;
 }
 
