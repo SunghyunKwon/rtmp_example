@@ -1,5 +1,6 @@
 #include <iostream>
 #include <unistd.h>
+#include <stdlib.h>
 
 // RTMP Inlcude
 #include <librtmp/rtmp.h>
@@ -69,6 +70,19 @@ int RTMPSendPacket(RTMP *rtmp, FILE *file_pointer) {
 
     RTMPPacket *rtmp_packet = NULL;
 
+    rtmp_packet = (RTMPPacket *)malloc(sizeof(RTMPPacket));
+    if (rtmp_packet == NULL) {
+        RTMP_LogPrintf("malloc failed");
+        goto FINISH_OFF;
+    }
+
+    RTMPPacket_Alloc(rtmp_packet, 1024 * 64);
+    RTMPPacket_Reset(rtmp_packet);
+
+    rtmp_packet->m_hasAbsTimestamp = 0;
+    rtmp_packet->m_nChannel = 0x04;
+    rtmp_packet->m_nInfoField2 = rtmp->m_stream_id;
+
     // Jump over FLV header
     fseek(file_pointer, 9, SEEK_SET);
     // Jump over previous Tag sizen
@@ -101,8 +115,10 @@ int RTMPSendPacket(RTMP *rtmp, FILE *file_pointer) {
             continue;
         }
 
-        if (fread(rtmp_packet->m_body, 1, data_length, file_pointer) != data_length)
+        if (fread(rtmp_packet->m_body, 1, data_length, file_pointer) != data_length) {
+            RTMP_LogPrintf("fread failed : [%d]\n", data_length);
             break;
+        }
 
         rtmp_packet->m_headerType = RTMP_PACKET_SIZE_LARGE;
         rtmp_packet->m_nTimeStamp = timestamp;
@@ -166,7 +182,8 @@ int RTMPServerCreate(char *filename) {
     RTMP_Init(rtmp);
 
     // Set RTMP Variable
-    ret = RTMP_SetupURL(rtmp, "rtmp://localhost/publish/live");
+    // //localhost/live/mystream
+    ret = RTMP_SetupURL(rtmp, "rtmp://localhost/live/mystream");
     if (!ret) {
         RTMP_LogPrintf("RTMP_SetupURL failed : [%d]\n", ret);
         goto FINISH_OFF;
