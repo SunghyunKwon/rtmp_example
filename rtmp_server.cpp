@@ -187,7 +187,10 @@ int RTMPServerCreate(char *filename) {
     }
 
     ret = RTMPSendPacket(rtmp, fp);
-
+    if (!ret) {
+        RTMP_LogPrintf("RTMPSendPacket failed : [%d]\n", ret);
+        goto FINISH_OFF;
+    }
 
 FINISH_OFF:
    
