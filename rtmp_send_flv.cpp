@@ -159,7 +159,7 @@ FINISH_OFF:
     return ret;
 }
 
-int RTMPServerCreate(char *filename) {
+int RTMPClientCreate(char *filename) {
     int ret = 0;
 
     FILE *fp = NULL;
@@ -225,11 +225,11 @@ int main(int argc, char **args) {
     int ret = 0;
 
     if (argc == 1) {
-        RTMP_LogPrintf("usage : rtmp_server [filename]\n");
+        RTMP_LogPrintf("usage : rtmp_send_flv [filename]\n");
         goto FINISH_OFF;
     }
 
-    ret = RTMPServerCreate(args[1]);
+    ret = RTMPClientCreate(args[1]);
 
 FINISH_OFF:
 
